@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPosts } from '../api';
 import { Grid, Card, CardContent, Typography, Container, CircularProgress, Box } from '@mui/material';
+import reactStringReplace from 'react-string-replace';
 
 const ItemList = ({ searchTerm }) => {
     const [items, setItems] = useState([]);
@@ -21,8 +22,16 @@ const ItemList = ({ searchTerm }) => {
         getPosts();
     }, []);
 
+    const highlightText = (text, term) => {
+        if (!term) return text;
+        return reactStringReplace(text, new RegExp(`(${term})`, 'gi'), (match, i) => (
+            <span key={i} style={{ backgroundColor: 'yellow', fontWeight: 'bold' }}>{match}</span>
+        ));
+    };
+
     const filteredItems = items.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase())
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.body.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -38,10 +47,10 @@ const ItemList = ({ searchTerm }) => {
                             <Card sx={{ minHeight: 200, display: 'flex', flexDirection: 'column' }}>
                                 <CardContent>
                                     <Typography variant="h6" gutterBottom>
-                                        {item.title}
+                                        {highlightText(item.title, searchTerm)}
                                     </Typography>
                                     <Typography variant="body2" color="textSecondary">
-                                        {item.body}
+                                        {highlightText(item.body, searchTerm)}
                                     </Typography>
                                 </CardContent>
                             </Card>
